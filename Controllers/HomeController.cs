@@ -19,6 +19,8 @@ namespace FakeDataGeneration_Task5.Controllers
             return View();
         }
 
+
+
         public IActionResult Privacy()
         {
             return View();
