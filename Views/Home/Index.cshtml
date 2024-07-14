@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container" style="min-height:90vh;">
+
+    <div class="row g-2 gx-lg-3 justify-content-start align-items-center">
+        <div class="col-auto">
+            <div class="row g-2">
+                <div class="col-auto">
+                    <label class="col-form-label">Region:</label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select" id="region" style="width: 150px;">
+                        <option selected value="1">USA</option>
+                        <option value="2">One</option>
+                        <option value="3">Two</option>
+                        <option value="4">Three</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-auto">
+            <div class="row g-2">
+                <div class="col-auto">
+                    <label class="col-form-label">Error:</label>
+                </div>
+
+                <div class="col-auto">
+                    <input type="range"
+                           class="form-control-range h-100"
+                           id="slider"
+                           min="1" max="10" step="1"
+                           value="0" oninput="updateError(this.value)">
+                </div>
+
+                <div class="col-auto" style="width: 100px;">
+                    <input type="number"
+                           class="form-control"
+                           id="input-error"
+                           min="0" max="1000" value="0"
+                           oninput="updateError(this.value)">
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-auto">
+            <div class="row g-2">
+                <div class="col-auto">
+                    <label class="col-form-label">Seed:</label>
+                </div>
+                <div class="col-auto" style="width: 100px;">
+                    <input type="number"
+                           class="form-control"
+                           id="seed"
+                           min="1"
+                           value="1234">
+                </div>
+
+                <div class="col-auto">
+                    <button type="submit"
+                            class="btn btn-outline-info"
+                            onclick="changeSeed()">
+                            <i class="bi bi-shuffle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-primary px-5">Export</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
+
+<script>
+
+    const rng = new Math.seedrandom(1234);
+    
+    function updateError(error) {
+        let recordError = document.getElementById('input-error');
+        let sliderError = document.getElementById('slider');
+        recordError.value = error;
+        sliderError.value = Math.min(10, error);
+    }
+
+    function changeSeed() {
+        const randomInt = getRandomInt(1, 10000, rng);
+        document.getElementById('seed').value = randomInt;
+    }
+    function getRandomInt(min, max, rng) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(rng() * (max - min + 1)) + min;
+    }
+
+    // Example usage:
+    console.log(randomInt);
+
+
+    function editUsers(ids) {
+      // alert('Editing users with IDs: ' + ids.join(', '));
+      console.log(ids);
+      // Implement your edit logic here
+      // Example: send the IDs to a server-side method
+      // fetch('/edit-endpoint', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   },
+      //   body: JSON.stringify({ userIds: ids })
+      // });
+    }
+
+
+</script>
