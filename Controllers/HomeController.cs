@@ -1,3 +1,4 @@
+using FakeDataGeneration.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Task_5_FakeDataGeneration_.Models;
@@ -16,7 +17,9 @@ namespace FakeDataGeneration_Task5.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var dg = new DataGeneratorService();
+            var data = dg.GetFakeData(1234, "en_IND");
+            return Ok(data);
         }
 
 
