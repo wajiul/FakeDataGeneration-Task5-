@@ -39,22 +39,23 @@ namespace FakeDataGeneration_Task5.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetFakeUsers(string locale, int errorCount, int seed, int record = 20)
+        public IActionResult GetFakeUsers(string locale, double errorCount, int seed, int page = 1, int record = 20)
         {
             if (errorCount < 0)
             {
                 return BadRequest("Errors must be greater than or equal to 0");
             }
 
+            int newSeed = seed + page; // to handle record duplication
 
-            var data = _dataGenerator.GetFakeData(seed, locale, record);
+            var data = _dataGenerator.GetFakeData(newSeed, locale, record);
 
             var errorData = new List<UserModel>();
 
             foreach (var user in data)
             {
                 var userData = UserModelToList(user);
-                var erroredUserData = _errorGenerator.AddErrors(userData, errorCount);
+                var erroredUserData = _errorGenerator.AddErrors(userData, errorCount, newSeed);
                 var erroredUserModel = ListToUserModel(erroredUserData);
                 erroredUserModel.Id = user.Id;
                 errorData.Add(erroredUserModel);

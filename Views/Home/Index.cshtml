@@ -108,7 +108,7 @@
 <script>
 
     const rng = new Math.seedrandom(1234);
-    
+
      document.addEventListener('DOMContentLoaded', function () {
         fetchUsersDataAndPopulateTable();
     });
@@ -235,7 +235,7 @@
     function addMoreRecord() {
         const settings = getDataGenerationSettings();
         const addRecord = 10;
-        const url = `/home/getfakeusers?locale=${settings.locale}&errorCount=${settings.errors}&seed=${settings.seed}&record=${addRecord}`;
+        const url = `/home/getfakeusers?locale=${settings.locale}&errorCount=${settings.errors}&seed=${settings.seed}&page=${pageNumber}&record=${addRecord}`;
 
         fetch(url)
             .then(response => response.json())

@@ -46,7 +46,7 @@ namespace FakeDataGeneration.Services
         private Faker<UserModel> GetFaker(string locale)
         {
             var userGenerator = new Faker<UserModel>(locale)
-                .RuleFor(u => u.Id, f => Guid.NewGuid().ToString())
+                .RuleFor(u => u.Id, f => f.Random.Guid().ToString())
                 .RuleFor(u => u.Name, f => f.Name.FullName())
                 .RuleFor(u => u.Email, f => f.Internet.Email())
                 .RuleFor(u => u.Address, f => GetAddress(f))

@@ -4,7 +4,7 @@ namespace FakeDataGeneration.Services
 {
     public class ErrorGeneratorService
     {
-        private Random rng = new Random(1234);
+        private Random rng;
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         private string DeleteCharacter(string data)
         {
@@ -44,8 +44,10 @@ namespace FakeDataGeneration.Services
             var errorMethod = errorMethods[rng.Next(errorMethods.Length)];
             return errorMethod(data);
         }
-        public List<string> AddErrors(List<string> data, double numErrors)
+        public List<string> AddErrors(List<string> data, double numErrors, int seed)
         {
+            rng = new Random(seed);
+
             numErrors = (rng.NextDouble() < numErrors % 1) ? numErrors + 1 : numErrors;
 
             for (int i = 0; i < Math.Floor(numErrors); i++)
