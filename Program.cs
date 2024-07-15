@@ -1,7 +1,11 @@
+using FakeDataGeneration.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<DataGeneratorService, DataGeneratorService>();
+builder.Services.AddScoped<ErrorGeneratorService, ErrorGeneratorService>();
 
 var app = builder.Build();
 

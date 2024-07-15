@@ -44,13 +44,13 @@ namespace FakeDataGeneration.Services
             var errorMethod = errorMethods[rng.Next(errorMethods.Length)];
             return errorMethod(data);
         }
-        public List<string> AddErrors(List<string> data, double numErrors, int skipColumn = 2)
+        public List<string> AddErrors(List<string> data, double numErrors)
         {
             numErrors = (rng.NextDouble() < numErrors % 1) ? numErrors + 1 : numErrors;
 
             for (int i = 0; i < Math.Floor(numErrors); i++)
             {
-                int columnIndex = rng.Next(skipColumn, data.Count);
+                int columnIndex = rng.Next(data.Count);
                 string column = data[columnIndex];
                 data[columnIndex] = AddErrorToColumn(column);
             }

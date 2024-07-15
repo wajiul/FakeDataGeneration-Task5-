@@ -2,20 +2,30 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="container" style="min-height:90vh;">
+<div class="container-fluid" style="min-height:100vh; margin-bottom:650px;">
 
-    <div class="row g-2 gx-lg-3 justify-content-start align-items-center">
+    <div class="row g-2 gx-lg-3 mb-4 px-lg-4 justify-content-start align-items-center">
         <div class="col-auto">
             <div class="row g-2">
                 <div class="col-auto">
                     <label class="col-form-label">Region:</label>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select" id="region" style="width: 150px;">
-                        <option selected value="1">USA</option>
-                        <option value="2">One</option>
-                        <option value="3">Two</option>
-                        <option value="4">Three</option>
+                    <select 
+                        class="form-select"
+                        id="region"
+                        onchange="fetchUsersDataAndPopulateTable()"
+                        style="width: 150px;">
+
+                            <option selected value="en_US">USA</option>
+                            <option value="pl">Poland</option>
+                            <option value="ge">Georgia</option>
+                            <option value="fr">French</option>
+                            <option value="en_CA">Canada</option>
+                            <option value="es">Spanish</option>
+                            <option value="ru">Russian</option>
+                            <option value="ar">Arabic</option>
+
                     </select>
                 </div>
             </div>
@@ -32,7 +42,8 @@
                            class="form-control-range h-100"
                            id="slider"
                            min="1" max="10" step="1"
-                           value="0" oninput="updateError(this.value)">
+                           value="0" 
+                           oninput="updateInputError(this.value);updateData()">
                 </div>
 
                 <div class="col-auto" style="width: 100px;">
@@ -40,7 +51,7 @@
                            class="form-control"
                            id="input-error"
                            min="0" max="1000" value="0"
-                           oninput="updateError(this.value)">
+                           oninput="updateSliderError(this.value);updateData()">
                 </div>
 
             </div>
@@ -56,13 +67,14 @@
                            class="form-control"
                            id="seed"
                            min="1"
+                           oninput="updateData()"
                            value="1234">
                 </div>
 
                 <div class="col-auto">
                     <button type="submit"
                             class="btn btn-outline-info"
-                            onclick="changeSeed()">
+                            onclick="changeSeed();fetchUsersDataAndPopulateTable()">
                             <i class="bi bi-shuffle"></i>
                     </button>
                 </div>
@@ -70,8 +82,23 @@
         </div>
 
         <div class="col-auto">
-            <button class="btn btn-primary px-5">Export</button>
+            <button class="btn btn-primary px-5" onclick="exportToCSV()">Export</button>
         </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped" id="userTable" style="font-size:14px;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User Id</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody"></tbody>
+        </table>
     </div>
 
 </div>
@@ -82,11 +109,31 @@
 
     const rng = new Math.seedrandom(1234);
     
-    function updateError(error) {
-        let recordError = document.getElementById('input-error');
+     document.addEventListener('DOMContentLoaded', function () {
+        fetchUsersDataAndPopulateTable();
+    });
+
+    function updateInputError(errorValue) {
+        let inputError = document.getElementById('input-error');
+        inputError.value = errorValue;
+    }
+
+    function updateSliderError(errorValue) {
         let sliderError = document.getElementById('slider');
-        recordError.value = error;
-        sliderError.value = Math.min(10, error);
+        sliderError.value = Math.min(10, Math.floor(errorValue));
+    }
+
+    function getDataGenerationSettings() {
+        const locale = document.getElementById('region').value;
+        const errors = document.getElementById('input-error').value;
+        const seed = document.getElementById('seed').value;
+
+        const obj = {
+            locale,
+            errors,
+            seed
+        }
+        return obj;
     }
 
     function changeSeed() {
@@ -99,23 +146,109 @@
         return Math.floor(rng() * (max - min + 1)) + min;
     }
 
-    // Example usage:
-    console.log(randomInt);
+    function fetchUsersDataAndPopulateTable() {
 
+        const settings = getDataGenerationSettings();
+        const url = `/home/getfakeusers?locale=${settings.locale}&errorCount=${settings.errors}&seed=${settings.seed}`;
 
-    function editUsers(ids) {
-      // alert('Editing users with IDs: ' + ids.join(', '));
-      console.log(ids);
-      // Implement your edit logic here
-      // Example: send the IDs to a server-side method
-      // fetch('/edit-endpoint', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify({ userIds: ids })
-      // });
+        document.getElementById('userTableBody').innerHTML = '';
+        tableRowIndex = 0;
+        lastTriggerPosition = 10;
+
+        fetch(url)
+        .then(response => response.json())
+        .then(data => populateTable(data))
+        .catch(error => console.error('Error fetching users:', error));
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function () {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                func.apply(this, arguments);
+            }, wait);
+        };
+    }
+
+    const updateData = debounce(fetchUsersDataAndPopulateTable, 600); // 600ms delay
+
+    let tableRowIndex = 0;
+    function populateTable(users) {
+
+        const tableBody = document.getElementById('userTableBody');
+        users.forEach(user => {
+            const row = document.createElement('tr');
+
+            const indexCell = document.createElement('td');
+            indexCell.textContent = ++tableRowIndex;
+            row.appendChild(indexCell);
+
+            const userIdCell = document.createElement('td');
+            userIdCell.textContent = user.id;
+            row.appendChild(userIdCell);
+
+            const nameCell = document.createElement('td');
+            nameCell.textContent = user.name;
+            row.appendChild(nameCell);
+
+            const emailCell = document.createElement('td');
+            emailCell.textContent = user.email;
+            row.appendChild(emailCell);
+
+            const addressCell = document.createElement('td');
+            addressCell.textContent = user.address;
+            row.appendChild(addressCell);
+
+            const phoneCell = document.createElement('td');
+            phoneCell.textContent = user.phone;
+            row.appendChild(phoneCell);
+
+            tableBody.appendChild(row);
+        });
+    }
+
+    function exportToCSV() {
+        $('#userTable').tableExport({ type: 'csv', escape: 'false' });
     }
 
 
+    let pageNumber = 1;
+    const triggerRows = 10;
+    let lastTriggerPosition = 9;
+
+
+    function handleScroll() {
+        var currentTable = document.getElementById('userTable');
+        var firstRow = currentTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[0];
+        const rowHeight = firstRow.offsetHeight;
+        const currentScrollPosition = window.scrollY;
+        const scrolledRows = Math.floor(currentScrollPosition / rowHeight);
+
+        if (scrolledRows >= lastTriggerPosition + triggerRows) {
+            lastTriggerPosition = scrolledRows;
+            pageNumber += 1;
+            addMoreRecord();
+        }
+    }
+
+    function addMoreRecord() {
+        const settings = getDataGenerationSettings();
+        const addRecord = 10;
+        const url = `/home/getfakeusers?locale=${settings.locale}&errorCount=${settings.errors}&seed=${settings.seed}&record=${addRecord}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => populateTable(data))
+            .catch(error => console.error('Error fetching users:', error));
+    }
+
+    window.addEventListener('scroll', handleScroll);
+
+
 </script>
+
+@section Scripts {
+    <script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.core.min.js"></script>
+}

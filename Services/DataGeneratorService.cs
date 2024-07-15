@@ -54,13 +54,15 @@ namespace FakeDataGeneration.Services
             return userGenerator;
         }
         
-        public IEnumerable<UserModel> GetFakeData(int seed, string locale)
+        
+
+        public IEnumerable<UserModel> GetFakeData(int seed, string locale, int row)
         {
 
             Randomizer.Seed = new Random(seed);
             var faker = GetFaker(locale);
             var data = new List<UserModel>();
-            for(int i =  0; i < 20; i++)
+            for(int i =  0; i < row; i++)
             {
                 data.Add(faker.Generate());
             }
